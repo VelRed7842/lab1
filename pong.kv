@@ -6,7 +6,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.8, 0.8, 0.8, 1  # Світло-сірий колір м'ячика
+            rgba: 1, 1, 1, 1  # Зелений фон м'ячика
         Ellipse:
             pos: self.pos
             size: self.size
@@ -16,7 +16,7 @@
 
     canvas.before:
         Color:
-            rgba: 1, 1, 1, 1  # Білий колір для платформ
+            rgba: 1, 1, 0.8, 1  # Жовтий колір платформи
         Rectangle:
             pos: self.pos
             size: self.size
@@ -27,6 +27,14 @@
     player2: player_right
 
     canvas:
+        Color:
+            rgba: 0.1, 0.5, 0.1, 1  # Темно-зелений фон гри
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgba: 1, 1, 1, 1  # Білий колір для лінії посередині
         Rectangle:
             pos: self.center_x - 5, 0
             size: 10, self.height
@@ -43,6 +51,7 @@
                 center_x: root.width * 0.25
                 top: root.top - 50
                 text: str(root.player1.score)
+                color: 0.8, 0.8, 0, 1  # колір для лівого гравця
 
             Label:
                 id: player2_score
@@ -50,6 +59,24 @@
                 center_x: root.width * 0.75
                 top: root.top - 50
                 text: str(root.player2.score)
+                color: 0.8, 0.8, 0, 1  # Жовтий колір для правого гравця
+
+            Button:
+                size_hint: None, None
+                size: 100, 100  # Змінено розмір кнопки
+                pos_hint: {'center_x': 0.5, 'y': 0}  # Розміщення по центру знизу
+                on_release: root.toggle_pause()
+                background_color: 0, 0, 0, 0  # Без фону для кнопки "Pause"
+                canvas.before:
+                    Color:
+                        rgba: (1, 1, 0, 1) if self.state == 'normal' else (0.8, 0.8, 0, 1)  # Змінює колір при натисканні
+
+                AsyncImage:
+                    source: 'pause_icon.png'  # Змініть на шлях до вашого значка для кнопки "Pause"
+                    allow_stretch: True
+                    keep_ratio: False
+                    size: self.parent.size
+                    pos: self.parent.pos
 
     PongBall:
         id: pong_ball

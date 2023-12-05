@@ -1,16 +1,20 @@
-
+# pong.py
 from kivy.app import App
 from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty
+from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty, ListProperty, StringProperty
 from kivy.vector import Vector
 from kivy.clock import Clock
 from random import randint
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.anchorlayout import AnchorLayout
 
 
 class PongPaddle(Widget):
     score = NumericProperty(0)
+    color = ListProperty([1, 1, 1, 1])  # Додано атрибут color
 
     def bounce_ball(self, ball):
         if self.collide_widget(ball):
@@ -45,7 +49,7 @@ class PongGame(Widget):
         self.ball.velocity = Vector(vel[0], vel[1]).rotate(randint(0, 360))
 
     def update(self, dt):
-        if not self.game_paused:  # Додана перевірка для оновлення тільки в разі відсутності паузи
+        if not self.game_paused:
             self.ball.move()
             self.player1.bounce_ball(self.ball)
             self.player2.bounce_ball(self.ball)
@@ -82,14 +86,42 @@ class PongGame(Widget):
             self.serve_ball()
             self.game_paused = False
 
+    def toggle_pause(self):
+        self.game_paused = not self.game_paused
+
+    def restart_game(self):
+        self.start_game()
+
+    def exit_game(self):
+        App.get_running_app().stop()
+
 
 class PongApp(App):
     def build(self):
-        game = PongGame()
-        game.serve_ball()
-        Clock.schedule_interval(game.update, 1.0 / 60)
-        game.update_score_labels()
-        return game
+        layout = BoxLayout(orientation='vertical', spacing=10)
+        menu = BoxLayout(orientation='horizontal', size_hint=(1, None), height=50)
+
+        start_button = Button(text='Restart', on_press=self.start_game, background_color=(0.1, 0.6, 0.1, 1))
+        exit_button = Button(text='Exit', on_press=self.exit_game, background_color=(0.1, 0.6, 0.1, 1))
+
+        menu.add_widget(start_button)
+        menu.add_widget(exit_button)
+
+        layout.add_widget(menu)
+
+        self.game = PongGame()
+        self.game.serve_ball()
+        Clock.schedule_interval(self.game.update, 1.0 / 60)
+        self.game.update_score_labels()
+        layout.add_widget(self.game)
+
+        return layout
+
+    def start_game(self, instance):
+        self.game.start_game()
+
+    def exit_game(self, instance):
+        App.get_running_app().stop()
 
 
 if __name__ == '__main__':
